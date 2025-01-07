@@ -35,7 +35,7 @@ export function Card({title, link , type}: CardProps) {
                 referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>}
             
                 {type === "twitter" && <blockquote className="twitter-tweet">
-                    <a href={link}></a>
+                    <a href={link.replace("x.com","twitter.com")}></a>
                 </blockquote>}
             </div>
         </div>

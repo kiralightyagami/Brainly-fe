@@ -1,13 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button} from '../components/Button'
 import { Card } from '../components/Card'
 import { CreateContentModal } from '../components/CreateContentModal'
 import { PlusIcon } from '../icons/PlusIcon'
 import { ShareIcon } from '../icons/ShareIcon'
 import { Sidebar } from '../components/Sidebar'
+import { useContent } from '../hooks/useContent'
+import axios from 'axios'
+import { BACKEND_URL, SHARE_URL } from '../config'
 
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
+  const {contents, refersh}  = useContent();
+
+  useEffect(()=> {
+    refersh();
+  }, [modalOpen])
 
   return  <div> 
     <Sidebar/>
@@ -17,16 +25,24 @@ export function Dashboard() {
     }}/>
     <div className='flex justify-end gap-4'>
       <Button  onClick={()=>{setModalOpen(true)}} variant="primary" text="Add content" startIcon={<PlusIcon/>}></Button> 
-      <Button variant="secondary" text="Share brain" startIcon={<ShareIcon/>}></Button>
+      <Button onClick={async () => {
+        const response = await axios.post(`${BACKEND_URL}/api/v1/brain/share`, {
+            share: true
+        }, {
+            headers: {
+                "Authorization": localStorage.getItem("token")
+            }
+        });
+        const shareUrl = `${SHARE_URL}/share/${response.data.hash}`;
+        alert(shareUrl);
+    }}  variant="secondary" text="Share brain" startIcon={<ShareIcon/>}></Button>
     </div>
-    <div className='flex gap-4'>
-      <Card type="twitter" link="https://twitter.com/kirat_tw/status/1633685473821425666"
-      title="First tweet"/>
-      <Card type="youtube" link="https://www.youtube.com/watch?v=vflWLItnwfA"
-      title="First tweet"/>
+    <div className='flex gap-4 flex-wrap'>
+      
+      {contents.map(({type, link, title}) => <Card type={type} link={link} title={title} />)}
     </div>
     </div>
-  </div>
-}
+    </div>
+} 
 
 
